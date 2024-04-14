@@ -1,0 +1,55 @@
+blueprint:
+ name: Multi Stage Light Blueprint
+ description: Adjusts the brightness of lights based on time of day.
+ domain: automation
+trigger:
+ - platform: state
+    entity_id:
+      - light.floor_lights
+    to: "on"
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+
+action:
+ - choose:
+      - conditions:
+          - condition: time
+            after: "07:00:00"
+            before: "20:00:00"
+        sequence:
+          - service: light.turn_on
+            data:
+              brightness_pct: 90
+              color_temp: 500
+            target:
+              area_id: "{{ area_id }}"
+      - conditions:
+          - condition: time
+            after: "00:00:00"
+            before: "05:00:00"
+        sequence:
+          - service: light.turn_on
+            data:
+              brightness_pct: 1
+              rgb_color:
+                - 255
+                - 157
+                - 71
+            target:
+              area_id: "{{ area_id }}"
+      - conditions:
+          - condition: time
+            after: "20:00:00"
+            before: "00:00:00"
+        sequence:
+          - service: light.turn_on
+            data:
+              brightness_pct: 60
+              rgb_color:
+                - 255
+                - 157
+                - 71
+            target:
+              area_id: "{{ area_id }}"
