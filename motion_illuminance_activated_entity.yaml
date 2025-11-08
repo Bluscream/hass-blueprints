@@ -1,0 +1,27 @@
+blueprint:
+  name: "Fades lights to a desired level over a specified transition period"
+  description: "Fades lights to a desired level over a specified transition period."
+  fields:
+    light:
+      name: Light
+      description: Entity_id of light.
+      selector:
+        entity:
+          domain: light
+      example: light.kitchen
+    end_pct:
+      name: End brightness Level
+      description: Integer value from 0 to 100 representing the desired final brightness level.
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          mode: slider
+      default: 50
+      example: "50"
+    transition:
+      name: Transition Time
+      description: Transition time for fading in seconds.
+      selector:
+        number:
