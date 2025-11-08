@@ -89,6 +89,10 @@ blueprint:
 mode: restart
 max_exceeded: silent
 
+variables:
+  night_start: !input night_start
+  night_end: !input night_end
+
 triggers:
   - trigger: state
     entity_id: !input trigger_light
@@ -102,8 +106,8 @@ actions:
             - conditions:
                 - condition: template
                   value_template: >-
-                    {% set start = !input night_start %}
-                    {% set end = !input night_end %}
+                    {% set start = night_start %}
+                    {% set end = night_end %}
                     {% set now_time = now().strftime('%H:%M:%S') %}
                     {% if start <= end %}
                       {{ start <= now_time < end }}
