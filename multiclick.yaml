@@ -5,65 +5,64 @@ blueprint:
   domain: automation
   homeassistant:
     min_version: "2024.6.0"
-  source_url: https://github.com/Bluscream/hass-blueprints/blob/main/multiclick.yaml
-
-input:
-  switch_id:
-    name: Trigger sensor
-    description: Binary sensor used to detect the clicks.
-    selector:
-      entity:
-        domain: binary_sensor
-  short_click_action:
-    name: Short click action
-    description: Sequence to run for a single short click.
-    default: []
-    selector:
-      action: {}
-  double_click_action:
-    name: Double click action
-    description: Sequence to run for a double click.
-    default: []
-    selector:
-      action: {}
-  triple_click_action:
-    name: Triple click action
-    description: Sequence to run for a triple click.
-    default: []
-    selector:
-      action: {}
-  long_click_action:
-    name: Long click action
-    description: Sequence to run for a long click.
-    default: []
-    selector:
-      action: {}
-  long_click_delay:
-    name: Long click delay (seconds)
-    description: Duration the button must stay on to be considered a long click.
-    default: 0.5
-    selector:
-      number:
-        min: 0
-        max: 10
-        step: 0.1
-        unit_of_measurement: seconds
-  very_long_click_action:
-    name: Very long click action
-    description: Sequence to run for a very long click.
-    default: []
-    selector:
-      action: {}
-  very_long_click_delay:
-    name: Very long click delay (seconds)
-    description: Additional time after a long click to consider it a very long click.
-    default: 1
-    selector:
-      number:
-        min: 0
-        max: 30
-        step: 0.1
-        unit_of_measurement: seconds
+    source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/multiclick.yaml
+  input:
+    switch_id:
+      name: Trigger sensor
+      description: Binary sensor used to detect the clicks.
+      selector:
+        entity:
+          domain: binary_sensor
+    short_click_action:
+      name: Short click action
+      description: Sequence to run for a single short click.
+      default: []
+      selector:
+        action: {}
+    double_click_action:
+      name: Double click action
+      description: Sequence to run for a double click.
+      default: []
+      selector:
+        action: {}
+    triple_click_action:
+      name: Triple click action
+      description: Sequence to run for a triple click.
+      default: []
+      selector:
+        action: {}
+    long_click_action:
+      name: Long click action
+      description: Sequence to run for a long click.
+      default: []
+      selector:
+        action: {}
+    long_click_delay:
+      name: Long click delay (seconds)
+      description: Duration the button must stay on to be considered a long click.
+      default: 0.5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+          unit_of_measurement: seconds
+    very_long_click_action:
+      name: Very long click action
+      description: Sequence to run for a very long click.
+      default: []
+      selector:
+        action: {}
+    very_long_click_delay:
+      name: Very long click delay (seconds)
+      description: Additional time after a long click to consider it a very long click.
+      default: 1
+      selector:
+        number:
+          min: 0
+          max: 30
+          step: 0.1
+          unit_of_measurement: seconds
 
 mode: restart
 max_exceeded: silent

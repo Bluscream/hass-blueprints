@@ -4,7 +4,7 @@ blueprint:
   domain: automation
   homeassistant:
     min_version: "2024.6.0"
-  source_url: https://github.com/Bluscream/hass-blueprints/blob/main/multi_stage_light.yaml
+    source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/multi_stage_light.yaml
 
   input:
     trigger_light:
@@ -40,6 +40,7 @@ blueprint:
 
     day_brightness:
       name: Daytime Brightness (%)
+      description: Brightness percentage to use during the day.
       default: 90
       selector:
         number:
@@ -49,6 +50,7 @@ blueprint:
 
     day_temperature:
       name: Daytime Color Temperature (mired)
+      description: Color temperature to apply during the day.
       default: 350
       selector:
         number:
@@ -57,6 +59,7 @@ blueprint:
 
     night_brightness:
       name: Nighttime Brightness (%)
+      description: Brightness percentage to use at night.
       default: 20
       selector:
         number:
@@ -66,6 +69,7 @@ blueprint:
 
     night_temperature:
       name: Nighttime Color Temperature (mired)
+      description: Color temperature to apply at night.
       default: 450
       selector:
         number:

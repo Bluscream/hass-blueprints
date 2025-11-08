@@ -6,85 +6,85 @@ blueprint:
   domain: automation
   homeassistant:
     min_version: "2024.6.0"
-
-input:
-  trigger_light:
-    name: Trigger light
-    description: Light entity that starts this automation when it turns on.
-    selector:
-      entity:
-        domain: light
-  trigger_state_duration:
-    name: Trigger state duration
-    description: How long the trigger light must stay on before the automation runs.
-    default:
-      seconds: 1
-    selector:
-      duration: {}
-  target_lights:
-    name: Target lights
-    description: The lights, devices, or areas to control.
-    selector:
-      target:
+    source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/night_light.yaml
+  input:
+    trigger_light:
+      name: Trigger light
+      description: Light entity that starts this automation when it turns on.
+      selector:
         entity:
           domain: light
-  night_start:
-    name: Night period start
-    description: Time of day when the dimmed night lighting begins.
-    default: "20:00:00"
-    selector:
-      time: {}
-  night_end:
-    name: Night period end
-    description: Time of day when the night period ends.
-    default: "07:00:00"
-    selector:
-      time: {}
-  night_brightness:
-    name: Night brightness
-    description: Brightness percentage to use during the night period.
-    default: 1
-    selector:
-      number:
-        min: 1
-        max: 100
-        unit_of_measurement: "%"
-        mode: slider
-  day_brightness:
-    name: Day brightness
-    description: Brightness percentage to use outside of the night period.
-    default: 90
-    selector:
-      number:
-        min: 1
-        max: 100
-        unit_of_measurement: "%"
-        mode: slider
-  night_temperature:
-    name: Night color temperature
-    description: Mired color temperature to use during the night period.
-    default: 500
-    selector:
-      number:
-        min: 150
-        max: 650
-        unit_of_measurement: "mired"
-  day_temperature:
-    name: Day color temperature
-    description: Mired color temperature to use outside of the night period.
-    default: 500
-    selector:
-      number:
-        min: 150
-        max: 650
-        unit_of_measurement: "mired"
-  repeat_delay:
-    name: Repeat delay
-    description: Delay between repeat light commands.
-    default:
-      seconds: 10
-    selector:
-      duration: {}
+    trigger_state_duration:
+      name: Trigger state duration
+      description: How long the trigger light must stay on before the automation runs.
+      default:
+        seconds: 1
+      selector:
+        duration: {}
+    target_lights:
+      name: Target lights
+      description: The lights, devices, or areas to control.
+      selector:
+        target:
+          entity:
+            domain: light
+    night_start:
+      name: Night period start
+      description: Time of day when the dimmed night lighting begins.
+      default: "20:00:00"
+      selector:
+        time: {}
+    night_end:
+      name: Night period end
+      description: Time of day when the night period ends.
+      default: "07:00:00"
+      selector:
+        time: {}
+    night_brightness:
+      name: Night brightness
+      description: Brightness percentage to use during the night period.
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+          mode: slider
+    day_brightness:
+      name: Day brightness
+      description: Brightness percentage to use outside of the night period.
+      default: 90
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+          mode: slider
+    night_temperature:
+      name: Night color temperature
+      description: Mired color temperature to use during the night period.
+      default: 500
+      selector:
+        number:
+          min: 150
+          max: 650
+          unit_of_measurement: "mired"
+    day_temperature:
+      name: Day color temperature
+      description: Mired color temperature to use outside of the night period.
+      default: 500
+      selector:
+        number:
+          min: 150
+          max: 650
+          unit_of_measurement: "mired"
+    repeat_delay:
+      name: Repeat delay
+      description: Delay between repeat light commands.
+      default:
+        seconds: 10
+      selector:
+        duration: {}
 
 mode: restart
 max_exceeded: silent
