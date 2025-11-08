@@ -2,6 +2,8 @@ blueprint:
   name: Fade Light to Level
   description: Fade one or more lights to a target brightness over a given transition.
   domain: script
+  homeassistant:
+    min_version: "2024.6.0"
   source_url: https://github.com/Bluscream/hass-blueprints/blob/main/motion_illuminance_activated_entity.yaml
 
 input:

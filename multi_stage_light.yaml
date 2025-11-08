@@ -2,6 +2,8 @@ blueprint:
   name: Multi Stage Light Blueprint
   description: Adjusts light levels based on time of day while a trigger light remains on.
   domain: automation
+  homeassistant:
+    min_version: "2024.6.0"
   source_url: https://github.com/Bluscream/hass-blueprints/blob/main/multi_stage_light.yaml
 
   input:
@@ -73,22 +75,13 @@ blueprint:
 mode: restart
 max_exceeded: silent
 
-variables:
-  trigger_light: !input trigger_light
-  target_lights: !input target_lights
-  repeat_delay: !input repeat_delay
-  day_brightness: !input day_brightness
-  day_temperature: !input day_temperature
-  night_brightness: !input night_brightness
-  night_temperature: !input night_temperature
-
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: !input trigger_light
     to: "on"
     for: !input trigger_state_duration
 
-action:
+actions:
   - repeat:
       sequence:
         - choose:
@@ -97,7 +90,7 @@ action:
                   value_template: >-
                     {{ 7 <= now().hour < 20 }}
               sequence:
-                - service: light.turn_on
+                - action: light.turn_on
                   target: !input target_lights
                   data:
                     brightness_pct: !input day_brightness
@@ -107,7 +100,7 @@ action:
                   value_template: >-
                     {{ now().hour >= 20 or now().hour < 7 }}
               sequence:
-                - service: light.turn_on
+                - action: light.turn_on
                   target: !input target_lights
                   data:
                     brightness_pct: !input night_brightness

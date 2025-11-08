@@ -4,6 +4,8 @@ blueprint:
     Dim the lights when a trigger light turns on at night, otherwise brighten
     them. Converted from the original Hallway Night Light automation.
   domain: automation
+  homeassistant:
+    min_version: "2024.6.0"
 
 input:
   trigger_light:
@@ -87,18 +89,13 @@ input:
 mode: restart
 max_exceeded: silent
 
-variables:
-  trigger_light: !input trigger_light
-
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: !input trigger_light
     to: "on"
     for: !input trigger_state_duration
 
-condition: []
-
-action:
+actions:
   - repeat:
       sequence:
         - choose:

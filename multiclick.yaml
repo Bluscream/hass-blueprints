@@ -3,6 +3,8 @@ blueprint:
   name: Multiclick
   description: Different actions for short, long, very long, double, and triple clicks.
   domain: automation
+  homeassistant:
+    min_version: "2024.6.0"
   source_url: https://github.com/Bluscream/hass-blueprints/blob/main/multiclick.yaml
 
 input:
@@ -66,12 +68,12 @@ input:
 mode: restart
 max_exceeded: silent
 
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: !input switch_id
     to: "on"
 
-action:
+actions:
   - variables:
       switch_id: !input switch_id
       short_click_action: !input short_click_action
