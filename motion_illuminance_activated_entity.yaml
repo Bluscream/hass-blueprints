@@ -1,27 +1,44 @@
 blueprint:
-  name: "Fades lights to a desired level over a specified transition period"
-  description: "Fades lights to a desired level over a specified transition period."
-  fields:
-    light:
-      name: Light
-      description: Entity_id of light.
-      selector:
+  name: Fade Light to Level
+  description: Fade one or more lights to a target brightness over a given transition.
+  domain: script
+  source_url: https://github.com/Bluscream/hass-blueprints/blob/main/motion_illuminance_activated_entity.yaml
+
+input:
+  target_lights:
+    name: Target lights
+    description: Lights, devices, or areas to fade.
+    selector:
+      target:
         entity:
           domain: light
-      example: light.kitchen
-    end_pct:
-      name: End brightness Level
-      description: Integer value from 0 to 100 representing the desired final brightness level.
-      selector:
-        number:
-          min: 0
-          max: 100
-          step: 1
-          mode: slider
-      default: 50
-      example: "50"
-    transition:
-      name: Transition Time
-      description: Transition time for fading in seconds.
-      selector:
-        number:
+  end_pct:
+    name: Target brightness (%)
+    description: Desired final brightness as a percentage.
+    default: 50
+    selector:
+      number:
+        min: 0
+        max: 100
+        step: 1
+        mode: slider
+        unit_of_measurement: "%"
+  transition_seconds:
+    name: Transition time (seconds)
+    description: Time in seconds to reach the final brightness.
+    default: 5
+    selector:
+      number:
+        min: 0
+        max: 600
+        step: 1
+
+mode: parallel
+max_exceeded: silent
+
+sequence:
+  - service: light.turn_on
+    target: !input target_lights
+    data:
+      brightness_pct: !input end_pct
+      transition: !input transition_seconds
