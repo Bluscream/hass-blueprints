@@ -1,55 +1,119 @@
 blueprint:
- name: Multi Stage Light Blueprint
- description: Adjusts the brightness of lights based on time of day.
- domain: automation
+  name: Multi Stage Light Blueprint
+  description: Adjusts light levels based on time of day while a trigger light remains on.
+  domain: automation
+  source_url: https://github.com/Bluscream/hass-blueprints/blob/main/multi_stage_light.yaml
+
+  input:
+    trigger_light:
+      name: Trigger Light
+      description: Light entity whose state initiates the automation.
+      selector:
+        entity:
+          domain: light
+
+    target_lights:
+      name: Target Lights
+      description: Lights to control while the trigger is active.
+      selector:
+        target:
+          entity:
+            domain: light
+
+    trigger_state_duration:
+      name: Trigger State Duration
+      description: Duration the trigger light must stay on before the automation starts.
+      default:
+        seconds: 1
+      selector:
+        duration: {}
+
+    repeat_delay:
+      name: Refresh Interval
+      description: How often to re-assert the target light settings while the trigger stays on.
+      default:
+        minutes: 5
+      selector:
+        duration: {}
+
+    day_brightness:
+      name: Daytime Brightness (%)
+      default: 90
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+
+    day_temperature:
+      name: Daytime Color Temperature (mired)
+      default: 350
+      selector:
+        number:
+          min: 153
+          max: 500
+
+    night_brightness:
+      name: Nighttime Brightness (%)
+      default: 20
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+
+    night_temperature:
+      name: Nighttime Color Temperature (mired)
+      default: 450
+      selector:
+        number:
+          min: 153
+          max: 500
+
+mode: restart
+max_exceeded: silent
+
+variables:
+  trigger_light: !input trigger_light
+  target_lights: !input target_lights
+  repeat_delay: !input repeat_delay
+  day_brightness: !input day_brightness
+  day_temperature: !input day_temperature
+  night_brightness: !input night_brightness
+  night_temperature: !input night_temperature
+
 trigger:
- - platform: state
-    entity_id:
-      - light.floor_lights
+  - platform: state
+    entity_id: !input trigger_light
     to: "on"
-    for:
-      hours: 0
-      minutes: 0
-      seconds: 1
+    for: !input trigger_state_duration
 
 action:
- - choose:
-      - conditions:
-          - condition: time
-            after: "07:00:00"
-            before: "20:00:00"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness_pct: 90
-              color_temp: 500
-            target:
-              area_id: "{{ area_id }}"
-      - conditions:
-          - condition: time
-            after: "00:00:00"
-            before: "05:00:00"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness_pct: 1
-              rgb_color:
-                - 255
-                - 157
-                - 71
-            target:
-              area_id: "{{ area_id }}"
-      - conditions:
-          - condition: time
-            after: "20:00:00"
-            before: "00:00:00"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness_pct: 60
-              rgb_color:
-                - 255
-                - 157
-                - 71
-            target:
-              area_id: "{{ area_id }}"
+  - repeat:
+      sequence:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: >-
+                    {{ 7 <= now().hour < 20 }}
+              sequence:
+                - service: light.turn_on
+                  target: !input target_lights
+                  data:
+                    brightness_pct: !input day_brightness
+                    color_temp: !input day_temperature
+            - conditions:
+                - condition: template
+                  value_template: >-
+                    {{ now().hour >= 20 or now().hour < 7 }}
+              sequence:
+                - service: light.turn_on
+                  target: !input target_lights
+                  data:
+                    brightness_pct: !input night_brightness
+                    color_temp: !input night_temperature
+        - delay: !input repeat_delay
+      until:
+        - condition: state
+          entity_id: !input trigger_light
+          state: "off"
