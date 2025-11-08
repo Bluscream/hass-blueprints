@@ -1,0 +1,27 @@
+blueprint:
+  name: Toggle Targets
+  description: A script that toggles selected targets with a delay.
+  domain: script
+  input:
+      targets:
+          name: Targets
+          description: The devices to toggle.
+          selector:
+              entity: {}
+      speed:
+          name: Speed
+          description: The delay between toggles.
+          selector:
+              entity:
+                domain: input_number
+      switch:
+          name: Switch
+          description: The on/off switch.
+          selector:
+              boolean: {}
+  sequence:
+      - repeat:
+          while:
+              - '{{states(!input switch) == "on"}}'
+          sequence:
+              - service: switch.toggle
