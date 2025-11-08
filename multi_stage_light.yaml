@@ -2,9 +2,9 @@ blueprint:
   name: Multi Stage Light Blueprint
   description: Adjusts light levels based on time of day while a trigger light remains on.
   domain: automation
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/multi_stage_light.yaml
   homeassistant:
     min_version: "2024.6.0"
-    source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/multi_stage_light.yaml
 
   input:
     trigger_light:

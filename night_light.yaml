@@ -4,9 +4,9 @@ blueprint:
     Dim the lights when a trigger light turns on at night, otherwise brighten
     them. Converted from the original Hallway Night Light automation.
   domain: automation
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/night_light.yaml
   homeassistant:
     min_version: "2024.6.0"
-    source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/night_light.yaml
   input:
     trigger_light:
       name: Trigger light
