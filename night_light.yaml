@@ -85,6 +85,12 @@ blueprint:
         seconds: 10
       selector:
         duration: {}
+    enable_time_triggers:
+      name: Trigger when times are reached
+      description: Toggle to switch lighting automatically at night/day boundaries.
+      default: false
+      selector:
+        boolean: {}
 
 mode: restart
 max_exceeded: silent
@@ -92,15 +98,26 @@ max_exceeded: silent
 variables:
   night_start: !input night_start
   night_end: !input night_end
+  enable_time_triggers: !input enable_time_triggers
 
 triggers:
   - trigger: state
     entity_id: !input trigger_light
     to: "on"
     for: !input trigger_state_duration
+    id: trigger_light_on
+  - trigger: time
+    at: !input night_start
+    id: night_start
+    enabled: !input enable_time_triggers
+  - trigger: time
+    at: !input night_end
+    id: night_end
+    enabled: !input enable_time_triggers
 
 actions:
   - repeat:
+      count: 2
       sequence:
         - choose:
             - conditions:
@@ -127,7 +144,3 @@ actions:
                 brightness_pct: !input day_brightness
                 color_temp: !input day_temperature
         - delay: !input repeat_delay
-      until:
-        - condition: state
-          entity_id: !input trigger_light
-          state: "off"
