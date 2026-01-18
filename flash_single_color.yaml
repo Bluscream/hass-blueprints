@@ -19,7 +19,7 @@ blueprint:
       name: Flash color
       description: Color applied while lights are on.
       selector:
-        color: {}
+        color_rgb: {}
     brightness_pct:
       name: Brightness (%)
       description: Brightness percentage while lights are on.
@@ -90,10 +90,7 @@ sequence:
         - action: light.turn_on
           target: !input target_lights
           data:
-            rgb_color:
-              - "{{ flash_color.r }}"
-              - "{{ flash_color.g }}"
-              - "{{ flash_color.b }}"
+            rgb_color: !input flash_color
             brightness_pct: "{{ brightness_pct }}"
             transition: "{{ on_transition }}"
         - delay: !input on_duration
