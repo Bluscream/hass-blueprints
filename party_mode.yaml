@@ -3,19 +3,11 @@ blueprint:
   description: >
     Rapidly flash selected lights in random colors and brightness levels, then restore
     their previous state once finished.
-  domain: automation
+  domain: script
   source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/party_mode.yaml
   homeassistant:
     min_version: "2024.6.0"
   input:
-    party_toggle:
-      name: Party toggle
-      description: Entity that keeps the effect running while it stays on.
-      selector:
-        entity:
-          domain:
-            - input_boolean
-            - switch
     target_lights:
       name: Target lights
       description: Lights that will flash.
@@ -38,24 +30,17 @@ variables:
   snapshot_scene_id: >-
     {{ 'flash_snapshot_' ~ (now().timestamp() * 1000) | int }}
   flash_interval_ms: !input flash_interval_ms
+  script_entity: "{{ this.entity_id }}"
 
-triggers:
-  - trigger: state
-    entity_id: !input party_toggle
-    to: "on"
-
-conditions: []
-
-actions:
+sequence:
   - action: scene.create
     data:
       scene_id: "{{ snapshot_scene_id }}"
       snapshot_entities: !input target_lights
   - repeat:
       while:
-        - condition: state
-          entity_id: !input party_toggle
-          state: "on"
+        - condition: template
+          value_template: "{{ is_state(script_entity, 'on') }}"
       sequence:
         - action: light.turn_on
           target:
