@@ -71,10 +71,12 @@ variables:
   brightness_pct: !input brightness_pct
   on_duration: !input on_duration
   off_duration: !input off_duration
+  on_transition_ms: !input on_transition_ms
+  off_transition_ms: !input off_transition_ms
   on_transition: >-
-    {{ (!input on_transition_ms | int) / 1000 }}
+    {{ (on_transition_ms | int) / 1000 }}
   off_transition: >-
-    {{ (!input off_transition_ms | int) / 1000 }}
+    {{ (off_transition_ms | int) / 1000 }}
   script_entity: "{{ this.entity_id }}"
 
 sequence:
