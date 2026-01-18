@@ -1,10 +1,10 @@
 blueprint:
-  name: Lights Party Stop
+  name: Lights Stop
   description: >
     Restore lights using the snapshot scene produced by Lights Party/Flash and delete
     the snapshot afterward.
   domain: script
-  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_party_stop.yaml
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_stop.yaml
   homeassistant:
     min_version: "2024.6.0"
   input:
