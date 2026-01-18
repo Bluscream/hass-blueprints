@@ -4,7 +4,7 @@ blueprint:
     Rapidly flash selected lights in random colors and brightness levels, then restore
     their previous state once finished.
   domain: script
-  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/party_mode.yaml
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_party.yaml
   homeassistant:
     min_version: "2024.6.0"
   input:

@@ -4,7 +4,7 @@ blueprint:
     Repeatedly flash selected lights in a chosen color with configurable on/off delays,
     then restore their previous state once the script stops.
   domain: script
-  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/flash_single_color.yaml
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_flash.yaml
   homeassistant:
     min_version: "2024.6.0"
   input:
