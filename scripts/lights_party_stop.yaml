@@ -3,12 +3,12 @@ description: Restore lights using the Party Mode backup scene and clean up after
 mode: single
 icon: mdi:lightbulb-on-80
 variables:
-  snapshot_scene: scene.party_mode_backup
+  snapshot_scene: scene.lights_backup
 sequence:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ states(snapshot_scene) != 'unknown' }}"
+            value_template: "{{ snapshot_scene in states }}"
         sequence:
           - service: scene.turn_on
             data:

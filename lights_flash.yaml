@@ -81,7 +81,7 @@ blueprint:
           unit_of_measurement: ms
 
 variables:
-  snapshot_scene_id: party_mode_backup
+  snapshot_scene_id: lights_backup
   primary_color: !input primary_color
   secondary_color: !input secondary_color
   primary_brightness_pct: !input primary_brightness_pct
