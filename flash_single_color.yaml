@@ -66,8 +66,7 @@ blueprint:
           unit_of_measurement: ms
 
 variables:
-  snapshot_scene_id: >-
-    {{ 'single_color_flash_' ~ (now().timestamp() * 1000) | int }}
+  snapshot_scene_id: party_mode_backup
   flash_color: !input flash_color
   brightness_pct: !input brightness_pct
   on_duration: !input on_duration
