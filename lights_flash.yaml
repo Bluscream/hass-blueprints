@@ -1,7 +1,7 @@
 blueprint:
   name: Lights Flash
   description: >
-    Repeatedly flash selected lights in a chosen color with configurable on/off delays,
+    Repeatedly flash selected lights in chosen colors with configurable on/off delays,
     then restore their previous state once the script stops.
   domain: script
   source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_flash.yaml
@@ -15,14 +15,19 @@ blueprint:
         target:
           entity:
             domain: light
-    flash_color:
-      name: Flash color
-      description: Color applied while lights are on.
+    primary_color:
+      name: Primary color
+      description: Color used during the first half of each flash cycle.
       selector:
         color_rgb: {}
-    brightness_pct:
-      name: Brightness (%)
-      description: Brightness percentage while lights are on.
+    secondary_color:
+      name: Secondary color
+      description: Color used during the second half of each flash cycle. Leave black for an "off" phase.
+      selector:
+        color_rgb: {}
+    primary_brightness_pct:
+      name: Primary brightness (%)
+      description: Brightness while the primary color is active.
       default: 100
       selector:
         number:
@@ -30,18 +35,28 @@ blueprint:
           max: 100
           step: 1
           unit_of_measurement: "%"
+    secondary_brightness_pct:
+      name: Secondary brightness (%)
+      description: Brightness while the secondary color is active. Set to 0 to fully turn lights off during this phase.
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
     on_duration:
       name: On duration
       description: How long the lights stay on each cycle.
       default:
-        milliseconds: 500
+        seconds: 1
       selector:
         duration: {}
     off_duration:
       name: Off duration
       description: How long the lights stay off each cycle.
       default:
-        milliseconds: 500
+        seconds: 1
       selector:
         duration: {}
     on_transition_ms:
@@ -67,8 +82,10 @@ blueprint:
 
 variables:
   snapshot_scene_id: party_mode_backup
-  flash_color: !input flash_color
-  brightness_pct: !input brightness_pct
+  primary_color: !input primary_color
+  secondary_color: !input secondary_color
+  primary_brightness_pct: !input primary_brightness_pct
+  secondary_brightness_pct: !input secondary_brightness_pct
   on_duration: !input on_duration
   off_duration: !input off_duration
   on_transition_ms: !input on_transition_ms
@@ -92,14 +109,26 @@ sequence:
         - action: light.turn_on
           target: !input target_lights
           data:
-            rgb_color: !input flash_color
-            brightness_pct: "{{ brightness_pct }}"
+            rgb_color: !input primary_color
+            brightness_pct: "{{ primary_brightness_pct }}"
             transition: "{{ on_transition }}"
         - delay: !input on_duration
-        - action: light.turn_off
-          target: !input target_lights
-          data:
-            transition: "{{ off_transition }}"
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ (secondary_brightness_pct | int) > 0 }}"
+              sequence:
+                - action: light.turn_on
+                  target: !input target_lights
+                  data:
+                    rgb_color: !input secondary_color
+                    brightness_pct: "{{ secondary_brightness_pct }}"
+                    transition: "{{ off_transition }}"
+          default:
+            - action: light.turn_off
+              target: !input target_lights
+              data:
+                transition: "{{ off_transition }}"
         - delay: !input off_duration
   - action: scene.turn_on
     target:
