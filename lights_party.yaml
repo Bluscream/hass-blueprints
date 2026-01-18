@@ -1,5 +1,5 @@
 blueprint:
-  name: Party Mode
+  name: Lights Party
   description: >
     Rapidly flash selected lights in random colors and brightness levels, then restore
     their previous state once finished.

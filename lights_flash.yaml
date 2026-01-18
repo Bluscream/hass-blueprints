@@ -1,5 +1,5 @@
 blueprint:
-  name: Flash Single Color
+  name: Lights Flash
   description: >
     Repeatedly flash selected lights in a chosen color with configurable on/off delays,
     then restore their previous state once the script stops.

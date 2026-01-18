@@ -1,4 +1,4 @@
-alias: Party Stop
+alias: Lights Party Stop
 description: Restore lights using the Party Mode backup scene and clean up afterward.
 mode: single
 icon: mdi:lightbulb-on-80
