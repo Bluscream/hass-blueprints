@@ -1,0 +1,115 @@
+blueprint:
+  name: Flash Single Color
+  description: >
+    Repeatedly flash selected lights in a chosen color with configurable on/off delays,
+    then restore their previous state once the script stops.
+  domain: script
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/flash_single_color.yaml
+  homeassistant:
+    min_version: "2024.6.0"
+  input:
+    target_lights:
+      name: Target lights
+      description: The lights, devices, or areas to flash.
+      selector:
+        target:
+          entity:
+            domain: light
+    flash_color:
+      name: Flash color
+      description: Color applied while lights are on.
+      selector:
+        color: {}
+    brightness_pct:
+      name: Brightness (%)
+      description: Brightness percentage while lights are on.
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 100
+          step: 1
+          unit_of_measurement: "%"
+    on_duration:
+      name: On duration
+      description: How long the lights stay on each cycle.
+      default:
+        milliseconds: 500
+      selector:
+        duration: {}
+    off_duration:
+      name: Off duration
+      description: How long the lights stay off each cycle.
+      default:
+        milliseconds: 500
+      selector:
+        duration: {}
+    on_transition_ms:
+      name: On transition (ms)
+      description: Transition time applied when turning lights on.
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 5000
+          step: 50
+          unit_of_measurement: ms
+    off_transition_ms:
+      name: Off transition (ms)
+      description: Transition time applied when turning lights off.
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 5000
+          step: 50
+          unit_of_measurement: ms
+
+variables:
+  snapshot_scene_id: >-
+    {{ 'single_color_flash_' ~ (now().timestamp() * 1000) | int }}
+  flash_color: !input flash_color
+  brightness_pct: !input brightness_pct
+  on_duration: !input on_duration
+  off_duration: !input off_duration
+  on_transition: >-
+    {{ (!input on_transition_ms | int) / 1000 }}
+  off_transition: >-
+    {{ (!input off_transition_ms | int) / 1000 }}
+  script_entity: "{{ this.entity_id }}"
+
+sequence:
+  - action: scene.create
+    data:
+      scene_id: "{{ snapshot_scene_id }}"
+      snapshot_entities: !input target_lights
+  - repeat:
+      while:
+        - condition: template
+          value_template: "{{ is_state(script_entity, 'on') }}"
+      sequence:
+        - action: light.turn_on
+          target: !input target_lights
+          data:
+            rgb_color:
+              - "{{ flash_color.r }}"
+              - "{{ flash_color.g }}"
+              - "{{ flash_color.b }}"
+            brightness_pct: "{{ brightness_pct }}"
+            transition: "{{ on_transition }}"
+        - delay: !input on_duration
+        - action: light.turn_off
+          target: !input target_lights
+          data:
+            transition: "{{ off_transition }}"
+        - delay: !input off_duration
+  - action: scene.turn_on
+    target:
+      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+  - action: scene.delete
+    target:
+      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+
+mode: restart
+max_exceeded: silent
+icon: mdi:alarm-light

@@ -27,8 +27,7 @@ blueprint:
           unit_of_measurement: ms
 
 variables:
-  snapshot_scene_id: >-
-    {{ 'flash_snapshot_' ~ (now().timestamp() * 1000) | int }}
+  snapshot_scene_id: party_mode_backup
   flash_interval_ms: !input flash_interval_ms
   script_entity: "{{ this.entity_id }}"
 
