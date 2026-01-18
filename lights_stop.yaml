@@ -26,11 +26,15 @@ blueprint:
           step: 50
           unit_of_measurement: ms
 
+variables:
+  snapshot_scene_entity: !input snapshot_scene
+  restore_delay_ms_value: !input restore_delay_ms
+
 sequence:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ states(!input snapshot_scene) not in ['unknown', 'unavailable', ''] }}"
+            value_template: "{{ states(snapshot_scene_entity) not in ['unknown', 'unavailable', ''] }}"
         sequence:
           - action: scene.turn_on
             target:
