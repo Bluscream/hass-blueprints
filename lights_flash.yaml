@@ -10,11 +10,11 @@ blueprint:
   input:
     target_lights:
       name: Target lights
-      description: The lights, devices, or areas to flash.
+      description: The lights to flash.
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
+          multiple: true
     primary_color:
       name: Primary color
       description: Color used during the first half of each flash cycle.
@@ -95,33 +95,20 @@ variables:
   off_transition: >-
     {{ (off_transition_ms | int) / 1000 }}
   script_entity: "{{ this.entity_id }}"
-  target_entities: >-
-    {% set ns = namespace(entities=[]) %}
-    {% set entities = target_lights.entity_id | default([]) %}
-    {% if entities is string %}
-      {% set entities = [entities] %}
-    {% endif %}
-    {% set ns.entities = ns.entities + entities %}
-    {% for device in target_lights.device_id | default([]) %}
-      {% set ns.entities = ns.entities + device_entities(device) %}
-    {% endfor %}
-    {% for area in target_lights.area_id | default([]) %}
-      {% set ns.entities = ns.entities + area_entities(area) %}
-    {% endfor %}
-    {{ ns.entities | unique }}
 
 sequence:
   - action: scene.create
     data:
       scene_id: "{{ snapshot_scene_id }}"
-      snapshot_entities: "{{ target_entities }}"
+      snapshot_entities: !input target_lights
   - repeat:
       while:
         - condition: template
           value_template: "{{ is_state(script_entity, 'on') }}"
       sequence:
         - action: light.turn_on
-          target: !input target_lights
+          target:
+            entity_id: !input target_lights
           data:
             rgb_color: !input primary_color
             brightness_pct: "{{ primary_brightness_pct }}"
@@ -133,14 +120,16 @@ sequence:
                   value_template: "{{ (secondary_brightness_pct | int) > 0 }}"
               sequence:
                 - action: light.turn_on
-                  target: !input target_lights
+                  target:
+                    entity_id: !input target_lights
                   data:
                     rgb_color: !input secondary_color
                     brightness_pct: "{{ secondary_brightness_pct }}"
                     transition: "{{ off_transition }}"
           default:
             - action: light.turn_off
-              target: !input target_lights
+              target:
+                entity_id: !input target_lights
               data:
                 transition: "{{ off_transition }}"
         - delay: !input off_duration

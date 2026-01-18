@@ -10,11 +10,11 @@ blueprint:
   input:
     target_lights:
       name: Target lights
-      description: Lights, devices, or areas that will flash.
+      description: Lights that will flash.
       selector:
-        target:
-          entity:
-            domain: light
+        entity:
+          domain: light
+          multiple: true
     flash_interval_ms:
       name: Flash interval (ms)
       description: Delay between color changes in milliseconds.
@@ -30,33 +30,20 @@ variables:
   snapshot_scene_id: party_mode_backup
   flash_interval_ms: !input flash_interval_ms
   script_entity: "{{ this.entity_id }}"
-  target_entities: >-
-    {% set ns = namespace(entities=[]) %}
-    {% set entities = target_lights.entity_id | default([]) %}
-    {% if entities is string %}
-      {% set entities = [entities] %}
-    {% endif %}
-    {% set ns.entities = ns.entities + entities %}
-    {% for device in target_lights.device_id | default([]) %}
-      {% set ns.entities = ns.entities + device_entities(device) %}
-    {% endfor %}
-    {% for area in target_lights.area_id | default([]) %}
-      {% set ns.entities = ns.entities + area_entities(area) %}
-    {% endfor %}
-    {{ ns.entities | unique }}
 
 sequence:
   - action: scene.create
     data:
       scene_id: "{{ snapshot_scene_id }}"
-      snapshot_entities: "{{ target_entities }}"
+      snapshot_entities: !input target_lights
   - repeat:
       while:
         - condition: template
           value_template: "{{ is_state(script_entity, 'on') }}"
       sequence:
         - action: light.turn_on
-          target: !input target_lights
+          target:
+            entity_id: !input target_lights
           data:
             hs_color:
               - "{{ range(0, 360)|random }}"
