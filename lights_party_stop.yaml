@@ -1,0 +1,50 @@
+blueprint:
+  name: Lights Party Stop
+  description: >
+    Restore lights using the snapshot scene produced by Lights Party/Flash and delete
+    the snapshot afterward.
+  domain: script
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_party_stop.yaml
+  homeassistant:
+    min_version: "2024.6.0"
+  input:
+    snapshot_scene:
+      name: Snapshot scene
+      description: Scene entity created by the flashing scripts to capture light state.
+      default: scene.lights_backup
+      selector:
+        entity:
+          domain: scene
+    restore_delay_ms:
+      name: Restore delay (ms)
+      description: Pause after turning on the snapshot scene before deleting it.
+      default: 250
+      selector:
+        number:
+          min: 0
+          max: 5000
+          step: 50
+          unit_of_measurement: ms
+
+sequence:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ states(!input snapshot_scene) not in ['unknown', 'unavailable', ''] }}"
+        sequence:
+          - action: scene.turn_on
+            target:
+              entity_id: !input snapshot_scene
+          - delay:
+              milliseconds: !input restore_delay_ms
+          - action: scene.delete
+            target:
+              entity_id: !input snapshot_scene
+    default:
+      - action: logbook.log
+        data:
+          name: Lights Party Stop
+          message: "No snapshot scene found to restore."
+
+mode: single
+icon: mdi:lightbulb-on-80
