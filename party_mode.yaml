@@ -10,11 +10,11 @@ blueprint:
   input:
     target_lights:
       name: Target lights
-      description: Lights that will flash.
+      description: Lights, devices, or areas that will flash.
       selector:
-        entity:
-          domain: light
-          multiple: true
+        target:
+          entity:
+            domain: light
     flash_interval_ms:
       name: Flash interval (ms)
       description: Delay between color changes in milliseconds.
