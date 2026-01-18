@@ -1,0 +1,71 @@
+blueprint:
+  name: Party Mode
+  description: >
+    Rapidly flash selected lights in random colors and brightness levels, then restore
+    their previous state once finished.
+  domain: script
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/flash_random_lights.yaml
+  homeassistant:
+    min_version: "2024.6.0"
+  input:
+    target_lights:
+      name: Target lights
+      description: Lights that will flash.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    flash_interval_ms:
+      name: Flash interval (ms)
+      description: Delay between color changes in milliseconds.
+      default: 300
+      selector:
+        number:
+          min: 50
+          max: 5000
+          step: 50
+          unit_of_measurement: ms
+    flash_iterations:
+      name: Flash iterations
+      description: Number of random flashes to perform before restoring the lights.
+      default: 30
+      selector:
+        number:
+          min: 1
+          max: 300
+          unit_of_measurement: flashes
+
+variables:
+  snapshot_scene_id: >-
+    {{ 'flash_snapshot_' ~ (now().timestamp() * 1000) | int }}
+  flash_interval_ms: !input flash_interval_ms
+
+sequence:
+  - action: scene.create
+    data:
+      scene_id: "{{ snapshot_scene_id }}"
+      snapshot_entities: !input target_lights
+  - repeat:
+      count: !input flash_iterations
+      sequence:
+        - action: light.turn_on
+          target:
+            entity_id: !input target_lights
+          data:
+            hs_color:
+              - "{{ range(0, 360)|random }}"
+              - "{{ range(40, 100)|random }}"
+            brightness_pct: "{{ range(10, 100)|random }}"
+            transition: >-
+              {{ ([ (flash_interval_ms | int) / 1000, 0.1 ] | max) | round(2) }}
+        - delay:
+            milliseconds: !input flash_interval_ms
+  - action: scene.turn_on
+    target:
+      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+  - action: scene.delete
+    target:
+      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+
+mode: restart
+icon: mdi:party-popper
