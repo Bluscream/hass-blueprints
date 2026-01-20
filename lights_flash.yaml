@@ -96,6 +96,12 @@ variables:
   off_transition: >-
     {{ (off_transition_ms | int) / 1000 }}
   script_entity: "{{ this.entity_id }}"
+  primary_is_off: >-
+    {{ ((primary_color[0] | default(0)) == 0 and (primary_color[1] | default(0)) == 0 and (primary_color[2] | default(0)) == 0)
+       or (primary_brightness_pct | int) < 1 }}
+  secondary_is_off: >-
+    {{ ((secondary_color[0] | default(0)) == 0 and (secondary_color[1] | default(0)) == 0 and (secondary_color[2] | default(0)) == 0)
+       or (secondary_brightness_pct | int) < 1 }}
 
 sequence:
   - action: scene.create
@@ -107,18 +113,29 @@ sequence:
         - condition: template
           value_template: "{{ is_state(script_entity, 'on') }}"
       sequence:
-        - action: light.turn_on
-          target:
-            entity_id: !input target_lights
-          data:
-            rgb_color: !input primary_color
-            brightness_pct: "{{ primary_brightness_pct }}"
-            transition: "{{ on_transition }}"
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ not primary_is_off }}"
+              sequence:
+                - action: light.turn_on
+                  target:
+                    entity_id: !input target_lights
+                  data:
+                    rgb_color: !input primary_color
+                    brightness_pct: "{{ primary_brightness_pct }}"
+                    transition: "{{ on_transition }}"
+          default:
+            - action: light.turn_off
+              target:
+                entity_id: !input target_lights
+              data:
+                transition: "{{ on_transition }}"
         - delay: !input on_duration
         - choose:
             - conditions:
                 - condition: template
-                  value_template: "{{ (secondary_brightness_pct | int) > 0 }}"
+                  value_template: "{{ not secondary_is_off }}"
               sequence:
                 - action: light.turn_on
                   target:
