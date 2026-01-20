@@ -38,7 +38,7 @@ blueprint:
           default: 100
           selector:
             number:
-              min: 1
+              min: 0
               max: 100
               step: 1
               unit_of_measurement: "%"
