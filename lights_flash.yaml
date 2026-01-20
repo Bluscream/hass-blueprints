@@ -23,68 +23,76 @@ blueprint:
       selector:
         entity:
           domain: scene
-    primary_color:
-      name: Primary color
-      description: Color used during the first half of each flash cycle.
-      selector:
-        color_rgb: {}
-    secondary_color:
-      name: Secondary color
-      description: Color used during the second half of each flash cycle. Leave black for an "off" phase.
-      selector:
-        color_rgb: {}
-    primary_brightness_pct:
-      name: Primary brightness (%)
-      description: Brightness while the primary color is active.
-      default: 100
-      selector:
-        number:
-          min: 1
-          max: 100
-          step: 1
-          unit_of_measurement: "%"
-    secondary_brightness_pct:
-      name: Secondary brightness (%)
-      description: Brightness while the secondary color is active. Set to 0 to fully turn lights off during this phase.
-      default: 0
-      selector:
-        number:
-          min: 0
-          max: 100
-          step: 1
-          unit_of_measurement: "%"
-    primary_duration:
-      name: Primary duration
-      description: How long the lights stay in the primary color each cycle.
-      default:
-        seconds: 1
-      selector:
-        duration:
-          enable_millisecond: true
-    secondary_duration:
-      name: Secondary duration
-      description: How long the lights stay in the secondary color/off each cycle.
-      default:
-        seconds: 1
-      selector:
-        duration:
-          enable_millisecond: true
-    primary_transition_duration:
-      name: Primary transition duration
-      description: Transition time applied when activating the primary color.
-      default:
-        seconds: 0
-      selector:
-        duration:
-          enable_millisecond: true
-    secondary_transition_duration:
-      name: Secondary transition duration
-      description: Transition time applied when activating the secondary color/off phase.
-      default:
-        seconds: 0
-      selector:
-        duration:
-          enable_millisecond: true
+    primary_section:
+      name: Primary phase
+      icon: mdi:flash
+      input:
+        primary_color:
+          name: Color
+          description: Color used during the first half of each flash cycle.
+          selector:
+            color_rgb: {}
+        primary_brightness_pct:
+          name: Brightness
+          description: Brightness while the primary color is active.
+          default: 100
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              unit_of_measurement: "%"
+        primary_duration:
+          name: Duration
+          description: How long the lights stay in the primary color each cycle.
+          default:
+            seconds: 1
+          selector:
+            duration:
+              enable_millisecond: true
+        primary_transition_duration:
+          name: Transition duration
+          description: Transition time applied when activating the primary color.
+          default:
+            seconds: 0
+          selector:
+            duration:
+              enable_millisecond: true
+    secondary_section:
+      name: Secondary phase
+      icon: mdi:flash-outline
+      input:
+        secondary_color:
+          name: Color
+          description: Color used during the second half of each flash cycle. Leave black for an "off" phase.
+          selector:
+            color_rgb: {}
+        secondary_brightness_pct:
+          name: Brightness
+          description: Brightness while the secondary color is active. Set to 0 to fully turn lights off during this phase.
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 100
+              step: 1
+              unit_of_measurement: "%"
+        secondary_duration:
+          name: Duration
+          description: How long the lights stay in the secondary color/off each cycle.
+          default:
+            seconds: 1
+          selector:
+            duration:
+              enable_millisecond: true
+        secondary_transition_duration:
+          name: Transition duration
+          description: Transition time applied when activating the secondary color/off phase.
+          default:
+            seconds: 0
+          selector:
+            duration:
+              enable_millisecond: true
 
 variables:
   snapshot_scene_entity: !input snapshot_scene
