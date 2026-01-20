@@ -1,10 +1,11 @@
 blueprint:
   name: Lights Flash
+  author: Bluscream
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_flash.yaml
   description: >
     Repeatedly flash selected lights in chosen colors with configurable on/off delays,
     then restore their previous state once the script stops.
   domain: script
-  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/lights_flash.yaml
   homeassistant:
     min_version: "2024.10.0"
   input:
@@ -15,6 +16,13 @@ blueprint:
         entity:
           domain: light
           multiple: true
+    snapshot_scene:
+      name: Snapshot scene
+      description: Scene entity used to store and restore the lights' state.
+      default: scene.lights_backup
+      selector:
+        entity:
+          domain: scene
     primary_color:
       name: Primary color
       description: Color used during the first half of each flash cycle.
@@ -45,57 +53,53 @@ blueprint:
           max: 100
           step: 1
           unit_of_measurement: "%"
-    on_duration:
-      name: On duration
-      description: How long the lights stay on each cycle.
+    primary_duration:
+      name: Primary duration
+      description: How long the lights stay in the primary color each cycle.
       default:
         seconds: 1
       selector:
         duration:
           enable_millisecond: true
-    off_duration:
-      name: Off duration
-      description: How long the lights stay off each cycle.
+    secondary_duration:
+      name: Secondary duration
+      description: How long the lights stay in the secondary color/off each cycle.
       default:
         seconds: 1
       selector:
         duration:
           enable_millisecond: true
-    on_transition_ms:
-      name: On transition (ms)
-      description: Transition time applied when turning lights on.
-      default: 0
+    primary_transition_duration:
+      name: Primary transition duration
+      description: Transition time applied when activating the primary color.
+      default:
+        seconds: 0
       selector:
-        number:
-          min: 0
-          max: 5000
-          step: 50
-          unit_of_measurement: ms
-    off_transition_ms:
-      name: Off transition (ms)
-      description: Transition time applied when turning lights off.
-      default: 0
+        duration:
+          enable_millisecond: true
+    secondary_transition_duration:
+      name: Secondary transition duration
+      description: Transition time applied when activating the secondary color/off phase.
+      default:
+        seconds: 0
       selector:
-        number:
-          min: 0
-          max: 5000
-          step: 50
-          unit_of_measurement: ms
+        duration:
+          enable_millisecond: true
 
 variables:
-  snapshot_scene_id: lights_backup
+  snapshot_scene_entity: !input snapshot_scene
   primary_color: !input primary_color
   secondary_color: !input secondary_color
   primary_brightness_pct: !input primary_brightness_pct
   secondary_brightness_pct: !input secondary_brightness_pct
-  on_duration: !input on_duration
-  off_duration: !input off_duration
-  on_transition_ms: !input on_transition_ms
-  off_transition_ms: !input off_transition_ms
-  on_transition: >-
-    {{ (on_transition_ms | int) / 1000 }}
-  off_transition: >-
-    {{ (off_transition_ms | int) / 1000 }}
+  primary_duration: !input primary_duration
+  secondary_duration: !input secondary_duration
+  primary_transition_duration: !input primary_transition_duration
+  secondary_transition_duration: !input secondary_transition_duration
+  primary_transition: >-
+    {{ as_timedelta(primary_transition_duration).total_seconds() }}
+  secondary_transition: >-
+    {{ as_timedelta(secondary_transition_duration).total_seconds() }}
   script_entity: "{{ this.entity_id }}"
   primary_is_off: >-
     {{ ((primary_color[0] | default(0)) == 0 and (primary_color[1] | default(0)) == 0 and (primary_color[2] | default(0)) == 0)
@@ -107,7 +111,7 @@ variables:
 sequence:
   - action: scene.create
     data:
-      scene_id: "{{ snapshot_scene_id }}"
+      scene_id: "{{ snapshot_scene_entity.split('.')[-1] }}"
       snapshot_entities: !input target_lights
   - repeat:
       while:
@@ -125,14 +129,14 @@ sequence:
                   data:
                     rgb_color: !input primary_color
                     brightness_pct: "{{ primary_brightness_pct }}"
-                    transition: "{{ on_transition }}"
+                    transition: "{{ primary_transition }}"
           default:
             - action: light.turn_off
               target:
                 entity_id: !input target_lights
               data:
-                transition: "{{ on_transition }}"
-        - delay: !input on_duration
+                transition: "{{ primary_transition }}"
+        - delay: !input primary_duration
         - choose:
             - conditions:
                 - condition: template
@@ -144,20 +148,20 @@ sequence:
                   data:
                     rgb_color: !input secondary_color
                     brightness_pct: "{{ secondary_brightness_pct }}"
-                    transition: "{{ off_transition }}"
+                    transition: "{{ secondary_transition }}"
           default:
             - action: light.turn_off
               target:
                 entity_id: !input target_lights
               data:
-                transition: "{{ off_transition }}"
-        - delay: !input off_duration
+                transition: "{{ secondary_transition }}"
+        - delay: !input secondary_duration
   - action: scene.turn_on
     target:
-      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+      entity_id: !input snapshot_scene
   - action: scene.delete
     target:
-      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+      entity_id: !input snapshot_scene
 
 mode: restart
 max_exceeded: silent

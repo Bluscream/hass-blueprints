@@ -1,5 +1,6 @@
 blueprint:
   name: Lights Party
+  author: Bluscream
   description: >
     Rapidly flash selected lights in random colors and brightness levels, then restore
     their previous state once finished.
@@ -15,6 +16,13 @@ blueprint:
         entity:
           domain: light
           multiple: true
+    snapshot_scene:
+      name: Snapshot scene
+      description: Scene entity used to store and restore the lights' state.
+      default: scene.lights_backup
+      selector:
+        entity:
+          domain: scene
     flash_interval_ms:
       name: Flash interval (ms)
       description: Delay between color changes in milliseconds.
@@ -27,14 +35,14 @@ blueprint:
           unit_of_measurement: ms
 
 variables:
-  snapshot_scene_id: lights_backup
+  snapshot_scene_entity: !input snapshot_scene
   flash_interval_ms: !input flash_interval_ms
   script_entity: "{{ this.entity_id }}"
 
 sequence:
   - action: scene.create
     data:
-      scene_id: "{{ snapshot_scene_id }}"
+      scene_id: "{{ snapshot_scene_entity.split('.')[-1] }}"
       snapshot_entities: !input target_lights
   - repeat:
       while:
@@ -55,10 +63,10 @@ sequence:
             milliseconds: !input flash_interval_ms
   - action: scene.turn_on
     target:
-      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+      entity_id: !input snapshot_scene
   - action: scene.delete
     target:
-      entity_id: "{{ 'scene.' ~ snapshot_scene_id }}"
+      entity_id: !input snapshot_scene
 
 mode: restart
 max_exceeded: silent

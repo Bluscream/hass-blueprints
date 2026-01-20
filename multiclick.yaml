@@ -1,6 +1,7 @@
 # Moved from https://gist.github.com/Bluscream/38ea188282c17f9a1066a4f6d4ca5fe5/edit
 blueprint:
   name: Multiclick
+  author: Bluscream
   description: Different actions for short, long, very long, double, and triple clicks.
   domain: automation
   source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/multiclick.yaml

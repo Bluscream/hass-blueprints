@@ -1,5 +1,6 @@
 blueprint:
   name: Toggle Targets
+  author: Bluscream
   description: A script that toggles selected targets with a delay.
   domain: script
   input:

@@ -1,5 +1,6 @@
 blueprint:
   name: Night Light
+  author: Bluscream
   description: >
     Dim the lights when a trigger light turns on at night, otherwise brighten
     them. Converted from the original Hallway Night Light automation.

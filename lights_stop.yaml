@@ -1,5 +1,6 @@
 blueprint:
   name: Lights Stop
+  author: Bluscream
   description: >
     Restore lights using the snapshot scene produced by Lights Party/Flash and delete
     the snapshot afterward.
