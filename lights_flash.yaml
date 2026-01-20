@@ -51,14 +51,15 @@ blueprint:
       default:
         seconds: 1
       selector:
-        duration: {}
+        duration:
+          enable_millisecond: true
     off_duration:
       name: Off duration
       description: How long the lights stay off each cycle.
       default:
         seconds: 1
       selector:
-        duration: {}
+          enable_millisecond: true
     on_transition_ms:
       name: On transition (ms)
       description: Transition time applied when turning lights on.
