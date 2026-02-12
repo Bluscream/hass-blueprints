@@ -1,0 +1,129 @@
+blueprint:
+  name: Night Light (Sensor Based)
+  author: Bluscream
+  description: >
+    Dim the lights when a trigger light turns on at night (as determined by a binary sensor), 
+    otherwise brighten them. Converted from the time-based Night Light blueprint.
+  domain: automation
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/night_light_sensor.yaml
+  homeassistant:
+    min_version: "2024.6.0"
+  input:
+    trigger_light:
+      name: Trigger light
+      description: Light entity that starts this automation when it turns on.
+      selector:
+        entity:
+          domain: light
+    trigger_state_duration:
+      name: Trigger state duration
+      description: How long the trigger light must stay on before the automation runs.
+      default:
+        seconds: 1
+      selector:
+        duration: {}
+    target_lights:
+      name: Target lights
+      description: The lights, devices, or areas to control.
+      selector:
+        target:
+          entity:
+            domain: light
+    night_sensor:
+      name: Night Sensor
+      description: Binary sensor that indicates if it is night (on) or day (off).
+      selector:
+        entity:
+          domain: binary_sensor
+    night_brightness:
+      name: Night brightness
+      description: Brightness percentage to use during the night period.
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+          mode: slider
+    day_brightness:
+      name: Day brightness
+      description: Brightness percentage to use outside of the night period.
+      default: 90
+      selector:
+        number:
+          min: 1
+          max: 100
+          unit_of_measurement: "%"
+          mode: slider
+    night_temperature:
+      name: Night color temperature
+      description: Mired color temperature to use during the night period.
+      default: 500
+      selector:
+        number:
+          min: 150
+          max: 650
+          unit_of_measurement: "mired"
+    day_temperature:
+      name: Day color temperature
+      description: Mired color temperature to use outside of the night period.
+      default: 500
+      selector:
+        number:
+          min: 150
+          max: 650
+          unit_of_measurement: "mired"
+    repeat_delay:
+      name: Repeat delay
+      description: Delay between repeat light commands.
+      default:
+        seconds: 10
+      selector:
+        duration: {}
+    enable_sensor_trigger:
+      name: Trigger when sensor state changes
+      description: Toggle to switch lighting automatically when the sensor indicates night/day change.
+      default: false
+      selector:
+        boolean: {}
+
+mode: restart
+max_exceeded: silent
+
+variables:
+  night_sensor: !input night_sensor
+  enable_sensor_trigger: !input enable_sensor_trigger
+
+triggers:
+  - trigger: state
+    entity_id: !input trigger_light
+    to: "on"
+    for: !input trigger_state_duration
+    id: trigger_light_on
+  - trigger: state
+    entity_id: !input night_sensor
+    id: sensor_change
+    enabled: !input enable_sensor_trigger
+
+actions:
+  - repeat:
+      count: 2
+      sequence:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: !input night_sensor
+                  state: "on"
+              sequence:
+                - action: light.turn_on
+                  target: !input target_lights
+                  data:
+                    brightness_pct: !input night_brightness
+                    color_temp: !input night_temperature
+          default:
+            - action: light.turn_on
+              target: !input target_lights
+              data:
+                brightness_pct: !input day_brightness
+                color_temp: !input day_temperature
+        - delay: !input repeat_delay

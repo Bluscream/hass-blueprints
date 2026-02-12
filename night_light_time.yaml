@@ -1,11 +1,11 @@
 blueprint:
-  name: Night Light
+  name: Night Light (Time Based)
   author: Bluscream
   description: >
     Dim the lights when a trigger light turns on at night, otherwise brighten
     them. Converted from the original Hallway Night Light automation.
   domain: automation
-  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/night_light.yaml
+  source_url: https://raw.githubusercontent.com/Bluscream/hass-blueprints/main/night_light_time.yaml
   homeassistant:
     min_version: "2024.6.0"
   input:
