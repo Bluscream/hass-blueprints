@@ -157,6 +157,6 @@ actions:
                 - condition: template
                   value_template: "{{ target_switches != {} }}"
               then:
-                - action: switch.turn_on
+                - action: switch.turn_off
                   target: !input target_switches
         - delay: !input repeat_delay
