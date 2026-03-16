@@ -99,7 +99,7 @@ actions:
                   target: !input target_lights
                   data:
                     brightness_pct: !input day_brightness
-                    color_temp: !input day_temperature
+                    color_temp_kelvin: "{{ (1000000 / day_temperature) | int }}"
             - conditions:
                 - condition: template
                   value_template: >-
@@ -109,7 +109,7 @@ actions:
                   target: !input target_lights
                   data:
                     brightness_pct: !input night_brightness
-                    color_temp: !input night_temperature
+                    color_temp_kelvin: "{{ (1000000 / night_temperature) | int }}"
         - delay: !input repeat_delay
       until:
         - condition: state

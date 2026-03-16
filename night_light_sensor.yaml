@@ -25,10 +25,19 @@ blueprint:
     target_lights:
       name: Target lights
       description: The lights, devices, or areas to control.
+      default: {}
       selector:
         target:
           entity:
             domain: light
+    target_switches:
+      name: Target switches
+      description: The switches to control.
+      default: {}
+      selector:
+        target:
+          entity:
+            domain: switch
     night_sensor:
       name: Night Sensor
       description: Binary sensor that indicates if it is night (on) or day (off).
@@ -93,6 +102,8 @@ max_exceeded: silent
 variables:
   night_sensor: !input night_sensor
   enable_sensor_trigger: !input enable_sensor_trigger
+  target_lights: !input target_lights
+  target_switches: !input target_switches
 
 triggers:
   - trigger: state
@@ -115,15 +126,35 @@ actions:
                   entity_id: !input night_sensor
                   state: "on"
               sequence:
+                - if:
+                    - condition: template
+                      value_template: "{{ target_lights != {} }}"
+                  then:
+                    - action: light.turn_on
+                      target: !input target_lights
+                      data:
+                        brightness_pct: !input night_brightness
+                        color_temp_kelvin: "{{ (1000000 / night_temperature) | int }}"
+                - if:
+                    - condition: template
+                      value_template: "{{ target_switches != {} }}"
+                  then:
+                    - action: switch.turn_on
+                      target: !input target_switches
+          default:
+            - if:
+                - condition: template
+                  value_template: "{{ target_lights != {} }}"
+              then:
                 - action: light.turn_on
                   target: !input target_lights
                   data:
-                    brightness_pct: !input night_brightness
-                    color_temp: !input night_temperature
-          default:
-            - action: light.turn_on
-              target: !input target_lights
-              data:
-                brightness_pct: !input day_brightness
-                color_temp: !input day_temperature
+                    brightness_pct: !input day_brightness
+                    color_temp_kelvin: "{{ (1000000 / day_temperature) | int }}"
+            - if:
+                - condition: template
+                  value_template: "{{ target_switches != {} }}"
+              then:
+                - action: switch.turn_on
+                  target: !input target_switches
         - delay: !input repeat_delay

@@ -137,11 +137,11 @@ actions:
                   target: !input target_lights
                   data:
                     brightness_pct: !input night_brightness
-                    color_temp: !input night_temperature
+                    color_temp_kelvin: "{{ (1000000 / night_temperature) | int }}"
           default:
             - action: light.turn_on
               target: !input target_lights
               data:
                 brightness_pct: !input day_brightness
-                color_temp: !input day_temperature
+                color_temp_kelvin: "{{ (1000000 / day_temperature) | int }}"
         - delay: !input repeat_delay
