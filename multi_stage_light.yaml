@@ -80,6 +80,10 @@ blueprint:
 mode: restart
 max_exceeded: silent
 
+variables:
+  day_temperature: !input day_temperature
+  night_temperature: !input night_temperature
+
 triggers:
   - trigger: state
     entity_id: !input trigger_light

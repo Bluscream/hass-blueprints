@@ -104,6 +104,8 @@ variables:
   enable_sensor_trigger: !input enable_sensor_trigger
   target_lights: !input target_lights
   target_switches: !input target_switches
+  night_temperature: !input night_temperature
+  day_temperature: !input day_temperature
 
 triggers:
   - trigger: state

@@ -100,6 +100,8 @@ variables:
   night_start: !input night_start
   night_end: !input night_end
   enable_time_triggers: !input enable_time_triggers
+  night_temperature: !input night_temperature
+  day_temperature: !input day_temperature
 
 triggers:
   - trigger: state
