@@ -8,7 +8,9 @@ blueprint:
       description: "The switch that will be pulsed (e.g. your group entity)."
       selector:
         entity:
-          domain: switch
+          domain:
+            - switch
+            - fan
     speed_entity:
       name: Speed Percentage Entity
       description: "The input_number helper tracking the fan speed (0 to 100)."
