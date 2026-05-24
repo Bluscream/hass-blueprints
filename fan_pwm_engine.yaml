@@ -1,0 +1,78 @@
+blueprint:
+  name: Template Fan PWM Engine
+  description: "Runs an infinite loop to turn a switch on and off based on an input_number percentage. 1% = X minutes ON. Must be used alongside a Template Fan."
+  domain: script
+  input:
+    target_switch:
+      name: Target Switch
+      description: "The switch that will be pulsed (e.g. your group entity)."
+      selector:
+        entity:
+          domain: switch
+    speed_entity:
+      name: Speed Percentage Entity
+      description: "The input_number helper tracking the fan speed (0 to 100)."
+      selector:
+        entity:
+          domain: input_number
+    minutes_per_percent:
+      name: Minutes per 1%
+      description: "How many minutes the switch stays ON for each 1% of speed (Default: 10 means 1% = 10 min ON, total cycle 1000 min)."
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 60
+          step: 1
+          mode: box
+
+mode: restart
+
+sequence:
+  - variables:
+      speed_entity: !input speed_entity
+      switch_entity: !input target_switch
+      multiplier: !input minutes_per_percent
+  - repeat:
+      while:
+        - condition: template
+          value_template: "{{ true }}" # Infinite loop until script is explicitly turned off
+      sequence:
+        - variables:
+            speed: "{{ states(speed_entity) | int(0) }}"
+            on_time: "{{ speed * multiplier }}"
+            off_time: "{{ (100 - speed) * multiplier }}"
+            
+        - choose:
+            # 0%: Turn off and wait
+            - conditions:
+                - condition: template
+                  value_template: "{{ speed == 0 }}"
+              sequence:
+                - action: switch.turn_off
+                  target:
+                    entity_id: "{{ switch_entity }}"
+                - delay: "00:05:00" # Sleep for 5 mins before checking loop again
+                
+            # 100%: Turn on and wait
+            - conditions:
+                - condition: template
+                  value_template: "{{ speed == 100 }}"
+              sequence:
+                - action: switch.turn_on
+                  target:
+                    entity_id: "{{ switch_entity }}"
+                - delay: "00:05:00"
+                
+          # Normal PWM Pulse
+          default:
+            - action: switch.turn_on
+              target:
+                entity_id: "{{ switch_entity }}"
+            - delay:
+                minutes: "{{ on_time }}"
+            - action: switch.turn_off
+              target:
+                entity_id: "{{ switch_entity }}"
+            - delay:
+                minutes: "{{ off_time }}"
