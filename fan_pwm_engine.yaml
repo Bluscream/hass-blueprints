@@ -17,9 +17,9 @@ blueprint:
       selector:
         entity:
           domain: input_number
-    minutes_per_percent:
-      name: Minutes per 1%
-      description: "How many minutes the switch stays ON for each 1% of speed (Default: 10 means 1% = 10 min ON, total cycle 1000 min)."
+    cycle_time_minutes:
+      name: Cycle Time (Minutes)
+      description: "The total duration of one full PWM cycle in minutes (e.g., 60 means the on + off time totals 60 minutes)."
       default: 10
       selector:
         number:
@@ -34,16 +34,17 @@ sequence:
   - variables:
       speed_entity: !input speed_entity
       switch_entity: !input target_switch
-      multiplier: !input minutes_per_percent
+      cycle_minutes: !input cycle_time_minutes
   - repeat:
       while:
         - condition: template
           value_template: "{{ true }}" # Infinite loop until script is explicitly turned off
       sequence:
         - variables:
-            speed: "{{ states(speed_entity) | int(0) }}"
-            on_time: "{{ speed * multiplier }}"
-            off_time: "{{ (100 - speed) * multiplier }}"
+            speed: "{{ states(speed_entity) | float(0) }}"
+            cycle_seconds: "{{ cycle_minutes | float * 60 }}"
+            on_time_sec: "{{ (speed / 100.0) * cycle_seconds }}"
+            off_time_sec: "{{ ((100.0 - speed) / 100.0) * cycle_seconds }}"
             
         - choose:
             # 0%: Turn off and wait
@@ -72,9 +73,9 @@ sequence:
               target:
                 entity_id: "{{ switch_entity }}"
             - delay:
-                minutes: "{{ on_time }}"
+                seconds: "{{ on_time_sec }}"
             - action: switch.turn_off
               target:
                 entity_id: "{{ switch_entity }}"
             - delay:
-                minutes: "{{ off_time }}"
+                seconds: "{{ off_time_sec }}"
