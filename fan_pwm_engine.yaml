@@ -31,7 +31,7 @@ blueprint:
       selector:
         number:
           min: 0.5
-          max: 60
+          max: 600
           step: 0.5
           mode: box
     min_on_time_minutes:
@@ -41,7 +41,7 @@ blueprint:
       selector:
         number:
           min: 0
-          max: 60
+          max: 300
           step: 0.5
           mode: box
 
