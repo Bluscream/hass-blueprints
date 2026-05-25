@@ -1,6 +1,12 @@
 blueprint:
   name: Template Fan PWM Engine
-  description: "Runs an infinite loop to turn a switch on and off based on an input_number percentage. 1% = X minutes ON. Must be used alongside a Template Fan."
+  description: >-
+    Runs an infinite loop to turn a switch on and off based on an input_number percentage.
+
+    Setup Instructions:
+    1. Create a Number Helper (input_number) in Home Assistant via Settings -> Devices & Services -> Helpers. Set the minimum to 0 and maximum to 100 to track the fan speed percentage.
+    2. Create a script from this blueprint, selecting your target switch, the Number Helper from Step 1, and your desired cycle time.
+    3. (Optional) Create a Template Fan in your configuration.yaml that links to the Number Helper to act as the virtual fan entity in your dashboard.
   domain: script
   input:
     target_switch:
