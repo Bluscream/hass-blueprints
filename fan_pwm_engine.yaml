@@ -17,6 +17,7 @@ blueprint:
           domain:
             - switch
             - fan
+            - climate
     speed_entity:
       name: Speed Percentage Entity
       description: "The input_number helper tracking the fan speed (0 to 100)."
@@ -33,6 +34,16 @@ blueprint:
           max: 60
           step: 1
           mode: box
+    min_on_time_minutes:
+      name: Minimum On Time (Minutes)
+      description: "Ensure the switch stays on for at least this many minutes during a cycle (0 to disable)."
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 60
+          step: 1
+          mode: box
 
 mode: restart
 
@@ -41,6 +52,7 @@ sequence:
       speed_entity: !input speed_entity
       switch_entity: !input target_switch
       cycle_minutes: !input cycle_time_minutes
+      min_on_minutes: !input min_on_time_minutes
   - repeat:
       while:
         - condition: template
@@ -49,8 +61,11 @@ sequence:
         - variables:
             speed: "{{ states(speed_entity) | float(0) }}"
             cycle_seconds: "{{ cycle_minutes | float * 60 }}"
-            on_time_sec: "{{ (speed / 100.0) * cycle_seconds }}"
-            off_time_sec: "{{ ((100.0 - speed) / 100.0) * cycle_seconds }}"
+            min_on_seconds: "{{ min_on_minutes | float * 60 }}"
+            raw_on_time_sec: "{{ (speed / 100.0) * cycle_seconds }}"
+            capped_on_time_sec: "{{ [raw_on_time_sec, min_on_seconds] | max }}"
+            on_time_sec: "{{ [capped_on_time_sec, cycle_seconds] | min }}"
+            off_time_sec: "{{ cycle_seconds - on_time_sec }}"
             
         - choose:
             # 0%: Turn off and wait
